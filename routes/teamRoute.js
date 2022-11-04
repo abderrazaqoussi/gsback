@@ -1,8 +1,8 @@
 const express = require('express')
 const { getAllTeams, addTeam } = require('../controllers/TeamController')
 
-const router = express.Router()
+const teamRouter = express.Router()
 
-router.route('/').get(getAllTeams).post(addTeam)
+teamRouter.route('/').get(getAllTeams).post(addTeam)
 
-module.exports = router
+module.exports = teamRouter

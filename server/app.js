@@ -4,31 +4,32 @@ require('dotenv').config()
 
 const app = express()
 
-const port = process.env.PORT || 4000
 app.use(express.json())
+
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Welcome to GoSport Back End.' })
 })
 
-//** */
+// >>>> Connect to Mongodb
 if (!process.env.MONGODB_URI) {
   console.log('pls add mongo uri')
 }
-// Set DB URI
+
 const DB_URI = process.env.MONGODB_URI
 
-// Set Connection Options
 const options = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }
-
-// Connect to Mongodb
 mongoose.connect(DB_URI, options).then(() => {
   console.log('Database connected')
 })
-// **
-app.use('/teams', require('../routes/teamRoute'))
+
+// >>>> Use Routes
+app.use('/api/v1/teams', require('../routes/teamRoute'))
+
+// >>>> Start Server
+const port = process.env.PORT || 4000
 app.listen(port, () => {
   console.log('Server Connected ' + port)
 })
