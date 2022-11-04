@@ -26,7 +26,7 @@ mongoose.connect(DB_URI, options).then(() => {
 })
 
 // >>>> Use Routes
-app.use('/api/v1/teams', require('../routes/teamRoute'))
+app.use('/api/v1/teams', require('./../routes/teamRoute'))
 
 // >>>> Start Server
 const port = process.env.PORT || 4000
