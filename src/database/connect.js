@@ -1,22 +1,25 @@
+// Code from >>> https://theholmesoffice.com/mongoose-connection-best-practice/
 require('dotenv').config({ path: __dirname + '/../../.env' })
 // Bring Mongoose into the app
-var mongoose = require('mongoose')
+let mongoose = require('mongoose')
 
 // Build the connection string
-var dbURI = process.env.MONGODB_URI
+let dbURI = process.env.MONGODB_URI
 
 // Create the database connection
-mongoose.connect(dbURI)
+mongoose.connect(dbURI, {
+  useNewUrlParser: 'true',
+})
 
 // CONNECTION EVENTS
 // When successfully connected
 mongoose.connection.on('connected', function () {
-  console.log('Mongoose default connection open to ' + dbURI)
+  console.log('Mongoose default connection is open')
 })
 
 // If the connection throws an error
 mongoose.connection.on('error', function (err) {
-  console.log('Mongoose default connection error: ' + err)
+  console.log('Mongoose default connection error : ' + err)
 })
 
 // When the connection is disconnected
