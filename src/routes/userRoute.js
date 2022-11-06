@@ -1,8 +1,6 @@
-const express = require('express')
-const { getAllTeams, addTeam } = require('./../controllers/TeamController')
+const { getAllUsers } = require('./../controllers/userController')
+const userRouter = require('express').Router()
 
-const teamRouter = express.Router()
+userRouter.route('/').get(getAllUsers)
 
-teamRouter.route('/').get(getAllTeams).post(addTeam)
-
-module.exports = teamRouter
+module.exports = userRouter

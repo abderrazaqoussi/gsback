@@ -1,4 +1,4 @@
-const Team = require('./../models/TeamModel')
+const Team = require('../models/teamModel')
 
 exports.getAllTeams = async (req, res) => {
   try {

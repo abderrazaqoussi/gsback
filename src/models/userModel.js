@@ -1,10 +1,14 @@
 const mongoose = require('mongoose')
 
-// name,owner,inviteLink,creationDate,members,classes
+// name,email,image,provider.id,provider.name
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
-  image: { type: String, required: true },
+  image: { type: String },
+  provider: {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+  },
 })
 
 const User = mongoose.model('User', userSchema)
