@@ -1,82 +1,60 @@
-const User = require('./../models/userModel')
 const passport = require('passport')
 const router = require('express').Router()
 const jwt = require('jsonwebtoken')
 
-/* 
+// Function for generating jwt tokens
+const generateJwtToken = (user) => {
+  const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
+    expiresIn: '7d',
+  })
+  return token
+}
 
-Handle Google Auth 
+// This is the route for initiating the OAuth flow to Google
+router.get(
+  '/google',
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+  })
+)
 
-*/
-// Redirect the user to the Google signin page
-router.get('/google', passport.authenticate('google', ['profile', 'email']))
-
-// Retrieve user data using the access token received from Google
+// This is the callback\redirect url after the OAuth login at Google.
 router.get(
   '/google/callback',
-  passport.authenticate('google', { session: false }),
+  passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
-    jwt.sign(
-      { user: req.user },
-      'secretKey',
-      { expiresIn: '1h' },
-      (err, token) => {
-        if (err) {
-          return res.json({
-            token: null,
-          })
-        }
-        res.json({
-          token,
-        })
-      }
-    )
+    const token = generateJwtToken(req.user)
+    res.cookie('jwt', token)
+    res.redirect('/profile')
   }
 )
 
-/*
+// Navigating to the root url will ask passport to check for a valid token
+// router.get(
+//   '/',
+//   passport.authenticate('jwt', { session: false, failureRedirect: '/login' }),
+//   (req, res) => {
+//     res.json({ user: req.user })
+//     // res.render('home', { user: req.user })
+//   }
+// )
 
-Handle Strava Auth 
-
-*/
-// Redirect the user to the Strava signin page
-router.get('/strava', passport.authenticate('strava', ['activity:read']))
-
-// Retrieve user data using the access token received from Strava
+// Viewing the profile page will ask passport to check for a valid token
 router.get(
-  '/strava/callback',
-  passport.authenticate('strava', {
-    successRedirect: '/auth/login/succes',
-    failureRedirect: '/login/failed',
-  })
+  '/profile',
+  passport.authenticate('jwt', { session: false, failureRedirect: '/login' }),
+  (req, res) => {
+    res.json({ page: 'profile', user: req.user })
+  }
 )
 
-
-// oute after successful sign in
-router.get('/login/succes', (req, res) => {
-  if (req.body) {
-    res.status(200).json({
-      error: false,
-      message: 'Successfully Loged In',
-      user: req.body,
-    })
-  } else {
-    console.log(req)
-    res.status(403).json({ error: true, message: 'Not Authorized' })
-  }
+router.get('/login', (_req, res) => {
+  res.json({ message: 'Login Page' })
 })
 
-router.get('/login/failed', (req, res) => {
-  res.status(401).json({
-    error: true,
-    message: 'Log in Failure',
-  })
-})
-
-// LogOut the user
 router.get('/logout', (req, res) => {
-  req.logout()
-  req.redirect(process.env.CLIENT_URL)
+  res.clearCookie('jwt')
+  res.redirect('/login')
 })
 
 module.exports = router

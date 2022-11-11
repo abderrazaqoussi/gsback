@@ -9,7 +9,9 @@ exports.getAllUsers = async (req, res) => {
     } else if (users.length === 0) {
       return res.status(404).json({ message: 'No Team Found' })
     } else {
-      return res.status(200).json({ status: 'Success', data: users })
+      return res
+        .status(200)
+        .json({ status: 'Success', length: users.length, data: users })
     }
   } catch (error) {
     return res.status(501).json({ message: 'Internal Server Error : ' + err })
