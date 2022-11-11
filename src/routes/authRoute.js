@@ -30,7 +30,7 @@ router.get(
       console.log({ user: req.user, body: req.body })
       const token = generateJwtToken(req.user)
       res.cookie('jwt', token)
-      res.redirect('/auth/profile')
+      res.redirect(`${process.env.CLIENT_URL}/`)
     } catch (err) {
       res.json({ err })
     }
