@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken')
 
 // Function for generating jwt tokens
 const generateJwtToken = (user) => {
-  const token = jwt.sign(user.toJSON(), process.env.JWT_SECRET, {
-    expiresIn: '7d',
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: '2d',
   })
   return token
 }
@@ -23,49 +23,37 @@ router.get(
   '/google/callback',
   passport.authenticate('google', {
     session: false,
-    failureRedirect: '/auth/login',
+    failureRedirect: `${process.env.CLIENT_URL}/signin`,
   }),
   (req, res) => {
-    try {
-      console.log({ user: req.user, body: req.body })
-      const token = generateJwtToken(req.user)
-      res.cookie('jwt', token)
-      res.redirect(`${process.env.CLIENT_URL}/`)
-    } catch (err) {
-      res.json({ err })
-    }
+    const token = generateJwtToken(req.user)
+    res.cookie('jwt', token)
+    res.redirect(`${process.env.CLIENT_URL}/`)
   }
 )
-
-// Navigating to the root url will ask passport to check for a valid token
-// router.get(
-//   '/',
-//   passport.authenticate('jwt', { session: false, failureRedirect: '/login' }),
-//   (req, res) => {
-//     res.json({ user: req.user })
-//     // res.render('home', { user: req.user })
-//   }
-// )
 
 // Viewing the profile page will ask passport to check for a valid token
 router.get(
   '/profile',
   passport.authenticate('jwt', {
     session: false,
-    failureRedirect: 'auth/login',
+    failureRedirect: `${process.env.CLIENT_URL}/signin`,
   }),
   (req, res) => {
-    res.json({ page: 'profile', user: req.user })
+    try {
+      if (req.user) {
+        return res.json({ status: 'success', user: req.user })
+      }
+      return res.json({ status: 'success', user: 'No User Data' })
+    } catch (err) {
+      return res.json({ status: '...', message: 'Invalid token' })
+    }
   }
 )
 
-router.get('/login', (_req, res) => {
-  res.json({ message: 'Login Page' })
-})
-
 router.get('/logout', (req, res) => {
   res.clearCookie('jwt')
-  res.redirect('/auth/login')
+  res.redirect(`${process.env.CLIENT_URL}/signin`)
 })
 
 module.exports = router

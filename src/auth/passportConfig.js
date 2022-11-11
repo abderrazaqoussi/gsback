@@ -92,12 +92,19 @@ passport.use(
       },
       secretOrKey: process.env.JWT_SECRET,
     },
-    (jwtPayload, done) => {
-      console.log(jwtPayload)
-      if (!jwtPayload) {
-        return done('No token found...')
+    async (jwtPayload, done) => {
+      try {
+        //Identify user by ID
+        const user = await User.findById(jwtPayload.id)
+
+        if (!user) {
+          // console.log({ id: jwtPayload.id, jwtPayload: user })
+          return done(null, false)
+        }
+        return done(null, user)
+      } catch (error) {
+        return done(error, false)
       }
-      return done(null, jwtPayload)
     }
   )
 )
