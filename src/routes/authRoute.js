@@ -21,11 +21,19 @@ router.get(
 // This is the callback\redirect url after the OAuth login at Google.
 router.get(
   '/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/auth/login',
+  }),
   (req, res) => {
-    const token = generateJwtToken(req.user)
-    res.cookie('jwt', token)
-    res.redirect('/profile')
+    try {
+      console.log({ user: req.user, body: req.body })
+      const token = generateJwtToken(req.user)
+      res.cookie('jwt', token)
+      res.redirect('/auth/profile')
+    } catch (err) {
+      res.json({ err })
+    }
   }
 )
 
@@ -42,7 +50,10 @@ router.get(
 // Viewing the profile page will ask passport to check for a valid token
 router.get(
   '/profile',
-  passport.authenticate('jwt', { session: false, failureRedirect: '/login' }),
+  passport.authenticate('jwt', {
+    session: false,
+    failureRedirect: 'auth/login',
+  }),
   (req, res) => {
     res.json({ page: 'profile', user: req.user })
   }
@@ -54,7 +65,7 @@ router.get('/login', (_req, res) => {
 
 router.get('/logout', (req, res) => {
   res.clearCookie('jwt')
-  res.redirect('/login')
+  res.redirect('/auth/login')
 })
 
 module.exports = router

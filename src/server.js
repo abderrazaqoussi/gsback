@@ -28,7 +28,7 @@ app.use(passport.initialize())
 
 // >>>> Use Routes
 app.get('/', (req, res) => {
-  res.status(200).json({ message: 'Welcome to GoSport Back End.' })
+  res.redirect('/auth/google')
 })
 app.use('/auth', require('./routes/authRoute'))
 app.use('/api/v1/teams', require('./routes/teamRoute'))

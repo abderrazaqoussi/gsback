@@ -1,19 +1,19 @@
 const passport = require('passport')
-const GoogleStrategy = require('passport-google-oauth20').Strategy
+const GoogleStrategy = require('passport-google-oauth20')
 const StravaStrategy = require('passport-strava-oauth2').Strategy
-const JWTStrategy = require('passport-jwt').Strategy
+const JWTStrategy = require('passport-jwt')
 const User = require('./../models/userModel')
 
 // Config Google Strategy
 passport.use(
-  new GoogleStrategy(
+  new GoogleStrategy.Strategy(
     {
       clientID: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
       callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
       scope: ['profile', 'email'],
     },
-    async function (accessToken, refreshToken, profile, done) {
+    async (_accessToken, _refreshToken, profile, done) => {
       try {
         let existingUser = await User.findOne({
           provider: { id: profile.id, name: 'google' },
@@ -81,7 +81,7 @@ passport.use(
 
 // Config JWT Strategy
 passport.use(
-  new JWTStrategy(
+  new JWTStrategy.Strategy(
     {
       jwtFromRequest: (req) => {
         let token = null
@@ -101,12 +101,3 @@ passport.use(
     }
   )
 )
-
-// S
-passport.serializeUser((user, done) => {
-  done(null, user)
-})
-
-passport.deserializeUser((obj, done) => {
-  done(null, obj)
-})
