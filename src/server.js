@@ -7,7 +7,6 @@ require('./database/connect')
 
 //
 const passport = require('passport')
-const cookieParser = require('cookie-parser')
 app.use(
   require('express-session')({
     secret: 'keyboard cat',
@@ -21,7 +20,7 @@ require('./auth/passportConfig')
 
 //
 app.use(express.json())
-app.use(cookieParser())
+app.use(require('cookie-parser'))
 
 // Initialize Passport and restore authentication state.
 app.use(passport.initialize())

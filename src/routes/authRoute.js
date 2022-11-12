@@ -40,14 +40,10 @@ router.get(
     failureRedirect: `${process.env.CLIENT_URL}/signin`,
   }),
   (req, res) => {
-    try {
-      if (req.user) {
-        return res.json({ status: 'success', user: req.user })
-      }
-      return res.json({ status: 'success', user: 'No User Data' })
-    } catch (err) {
-      return res.json({ status: '...', message: 'Invalid token' })
+    if (req.user) {
+      return res.json({ status: 'success', user: req.user })
     }
+    return res.json({ status: 'success', user: 'No User Data' })
   }
 )
 
