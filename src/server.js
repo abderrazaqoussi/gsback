@@ -9,7 +9,7 @@ require('./database/connect') // Connection To DB
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.SERVER_URL, process.env.CLIENT_URL],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE'],
     optionsSuccessStatus: 200,
     contentType: 'application/json',
