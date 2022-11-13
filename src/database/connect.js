@@ -1,5 +1,5 @@
 // Code from >>> https://theholmesoffice.com/mongoose-connection-best-practice/
-require('dotenv').config({ path: __dirname + '/../../.env' })
+
 // Bring Mongoose into the app
 let mongoose = require('mongoose')
 

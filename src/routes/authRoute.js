@@ -1,6 +1,7 @@
 const passport = require('passport')
 const router = require('express').Router()
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
 
 // Function for generating jwt tokens
 const generateJwtToken = (user) => {
@@ -27,18 +28,23 @@ router.get(
   }),
   (req, res) => {
     const token = generateJwtToken(req.user)
-    res.cookie('jwt', token)
+    res.cookie('jwt', token, {
+      httpOnly: false,
+      secure: true,
+      sameSite: 'none',
+    })
     res.redirect(`${process.env.CLIENT_URL}/`)
   }
 )
 
 // Viewing the profile page will ask passport to check for a valid token
 router.get(
-  '/profile',
+  '/me',
   passport.authenticate('jwt', {
     session: false,
     failureRedirect: `${process.env.CLIENT_URL}/signin`,
   }),
+
   (req, res) => {
     if (req.user) {
       return res.json({ status: 'success', user: req.user })
