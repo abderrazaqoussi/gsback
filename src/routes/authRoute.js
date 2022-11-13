@@ -1,7 +1,6 @@
 const passport = require('passport')
 const router = require('express').Router()
 const jwt = require('jsonwebtoken')
-const cors = require('cors')
 
 // Function for generating jwt tokens
 const generateJwtToken = (user) => {
@@ -42,6 +41,7 @@ router.get(
   }),
 
   (req, res) => {
+    // res.setHeader('Access-Control-Allow-Origin', '*')
     if (req.user) {
       return res.json({ status: 'success', user: req.user })
     }

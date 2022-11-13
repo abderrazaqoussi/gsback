@@ -7,14 +7,14 @@ const app = express()
 
 require('./database/connect') // Connection To DB
 
-app.use(
-  cors({
-    origin: [process.env.SERVER_URL, process.env.CLIENT_URL],
-    methods: ['GET', 'POST', 'DELETE', 'UPDATE'],
-    optionsSuccessStatus: 200,
-    contentType: 'application/json',
-  })
-)
+// app.use(
+//   cors({
+//     origin: [process.env.SERVER_URL, process.env.CLIENT_URL],
+//     methods: ['GET', 'POST', 'DELETE', 'UPDATE'],
+//     optionsSuccessStatus: 200,
+//     contentType: 'application/json',
+//   })
+// )
 
 app.use(
   require('express-session')({
@@ -27,12 +27,6 @@ app.use(
 app.use(express.json())
 
 app.use(require('cookie-parser')())
-
-// app.get('/', (req, res) => {
-//   res.status(200).json({ status: 'success', message: 'Hello From GoSports :)' })
-// })
-
-//
 
 require('./auth/passportConfig')
 
