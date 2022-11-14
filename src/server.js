@@ -8,7 +8,7 @@ const app = express()
 const cors = require('cors')
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL,
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
     credentials: true, // enable HTTP cookies over CORS
   })
