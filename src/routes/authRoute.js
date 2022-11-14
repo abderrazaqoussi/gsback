@@ -27,7 +27,9 @@ router.get(
   }),
   (req, res) => {
     const token = generateJwtToken(req.user)
-    res.cookie('jwt', token)
+    res.cookie('jwt', token, {
+      httpOnly: false,
+    })
     res.redirect(`${process.env.CLIENT_URL}/`)
   }
 )
