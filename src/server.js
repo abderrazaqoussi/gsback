@@ -4,7 +4,6 @@ require('dotenv').config({ path: __dirname + '/../.env' })
 // Import Modules
 const express = require('express')
 const passport = require('passport')
-const expressSession = require('express-session')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 
@@ -18,17 +17,6 @@ require('./auth/passportConfig')
 const app = express()
 
 // Use Middlewares
-// app.use(function (req, res) {
-//   res.header('Access-Control-Allow-Origin', process.env.CLIENT_URL)
-//   res.header('Access-Control-Allow-Credentials', 'true')
-//   res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT')
-//   res.header(
-//     'Access-Control-Allow-Headers',
-//     'Origin,X-Requested-With,contentType,Content-Type,Accept,Authorization'
-//   )
-
-//   next()
-// })
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
