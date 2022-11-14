@@ -41,7 +41,6 @@ router.get(
   }),
 
   (req, res) => {
-    // res.setHeader('Access-Control-Allow-Origin', '*')
     if (req.user) {
       return res.json({ status: 'success', user: req.user })
     }

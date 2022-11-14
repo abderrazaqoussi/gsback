@@ -5,12 +5,12 @@ const passport = require('passport')
 
 const app = express()
 
-const cors = require('cors')
+var cors = require('cors') //import cors module
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
-    // optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
-    credentials: true, // enable HTTP cookies over CORS
+    origin: 'http://localhost:3000',
+    credentials: true, //Credentials are cookies, authorization headers or TLS client certificates.
   })
 )
 
