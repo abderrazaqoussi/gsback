@@ -1,44 +1,55 @@
-require('dotenv').config({ path: __dirname + '/../.env' }) // use Envirement variable
+// use Envirement variable
+require('dotenv').config({ path: __dirname + '/../.env' })
 
-const express = require('express') // import Express
+// Import Modules
+const express = require('express')
 const passport = require('passport')
+const expressSession = require('express-session')
+const cookieParser = require('cookie-parser')
+const cors = require('cors')
 
+// Connection To DB
+require('./database/connect')
+
+// Use Passport Config
+require('./auth/passportConfig')
+
+// Use Express
 const app = express()
 
-var cors = require('cors') //import cors module
+// Use Middlewares
+// app.use(function (req, res) {
+//   res.header('Access-Control-Allow-Origin', process.env.CLIENT_URL)
+//   res.header('Access-Control-Allow-Credentials', 'true')
+//   res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT')
+//   res.header(
+//     'Access-Control-Allow-Headers',
+//     'Origin,X-Requested-With,contentType,Content-Type,Accept,Authorization'
+//   )
 
+//   next()
+// })
 app.use(
   cors({
-    origin: 'http://localhost:3000',
-    credentials: true, //Credentials are cookies, authorization headers or TLS client certificates.
+    origin: process.env.CLIENT_URL,
+    credentials: true,
   })
 )
+app.use(express.json())
 
-require('./database/connect') // Connection To DB
+app.use(cookieParser())
 
 app.use(
-  require('express-session')({
+  expressSession({
     secret: 'keyboard cat',
     resave: true,
     saveUninitialized: true,
   })
 )
 
-app.use(express.json())
+app.use(passport.initialize())
 
-// const bodyParser = require('body-parser')
-// app.use(
-//   bodyParser.urlencoded({
-//     extended: true,
-//   })
-// )
-app.use(require('cookie-parser')())
-
-require('./auth/passportConfig')
-
-app.use(passport.initialize()) // Initialize Passport and restore authentication state.
-
-// >>>> Use Routes
+//  Use Routes
 
 app.use('/auth', require('./routes/authRoute'))
 app.use('/api/v1/teams', require('./routes/teamRoute'))
@@ -48,7 +59,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ status: 'success', message: 'Hello From GoSports :)' })
 })
 
-// >>>> Start Server
+// Start Server
 const port = process.env.PORT || 4000
 app.listen(port, () => {
   console.log(`Server Connected To : http://localhost:${port}`)
