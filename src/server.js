@@ -29,7 +29,7 @@ app.use(
 
     // Cookie Options
     domain: `.${process.env.CLIENT_URL}`,
-    sameSite: 'None',
+    sameSite: 'none',
     secure: true,
     path: '/',
     httpOnly: true,
