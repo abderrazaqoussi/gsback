@@ -29,7 +29,8 @@ app.use(
 
     // Cookie Options
     domain: `.${process.env.CLIENT_URL}`,
-    sameSite: 'strict',
+    sameSite: 'None',
+    secure: true,
     path: '/',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -40,6 +41,7 @@ app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
+    optionsSuccessStatus: 200,
   })
 )
 
