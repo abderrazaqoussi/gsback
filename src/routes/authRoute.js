@@ -27,7 +27,10 @@ router.get(
   }),
   (req, res) => {
     const token = generateJwtToken(req.user)
-    res.cookie('jwt', token)
+    res.cookie('jwt', token, {
+      domain: process.env.CLIENT_URL,
+      path: '/',
+    })
     // res.setHeader('Set-Cookie', `jwt=${token}`)
     res.redirect(`${process.env.CLIENT_URL}/`)
   }
