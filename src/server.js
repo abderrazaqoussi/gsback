@@ -27,14 +27,6 @@ app.use(express.json())
 
 app.use(cookieParser())
 
-// app.use(
-//   expressSession({
-//     secret: 'keyboard cat',
-//     resave: true,
-//     saveUninitialized: true,
-//   })
-// )
-
 app.use(passport.initialize())
 
 //  Use Routes
