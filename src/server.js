@@ -5,6 +5,7 @@ require('dotenv').config({ path: __dirname + '/../.env' })
 const express = require('express')
 const passport = require('passport')
 const cookieParser = require('cookie-parser')
+const cookieSession = require('cookie-session')
 const cors = require('cors')
 
 // Connection To DB
@@ -18,11 +19,29 @@ const app = express()
 
 // Use Middlewares
 app.use(
+  cookieSession({
+    name: 'session',
+    keys: [
+      /* secret keys */
+      'key1',
+      'key2',
+    ],
+
+    // Cookie Options
+    domain: process.env.CLIENT_URL,
+    path: '/',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  })
+)
+
+app.use(
   cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
   })
 )
+
 app.use(express.json())
 
 app.use(cookieParser())
