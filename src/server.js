@@ -29,8 +29,8 @@ app.use(
 
     // Cookie Options
     domain: `.${process.env.CLIENT_URL}`,
-    sameSite: 'none',
-    secure: true,
+    // sameSite: 'none',
+    // secure: true,
     path: '/',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -42,8 +42,11 @@ app.use(
     origin: process.env.CLIENT_URL,
     credentials: true,
     optionsSuccessStatus: 200,
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 )
+
+app.use(express.urlencoded({ extended: true }))
 
 app.use(express.json())
 

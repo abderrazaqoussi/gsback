@@ -1,5 +1,7 @@
 const Team = require('../models/teamModel')
+const fs = require('fs')
 
+// api/teams
 exports.getAllTeams = async (req, res) => {
   try {
     const teams = await Team.find({})
@@ -18,16 +20,26 @@ exports.getAllTeams = async (req, res) => {
 
 exports.addTeam = async (req, res) => {
   try {
-    const { name, owner, inviteLink, creationDate, members, classes } = req.body
+    const { name, owner, inviteCode, creationDate } = req.body
 
-    if (!name && !owner && !inviteLink) {
+    // console.log(__dirname + '/public/')
+    if (!name && !owner && !inviteCode) {
       return res.status(422).json({ message: `Invalid Inputs` })
     }
+
+    const teamImage = {
+      data: fs.readFileSync(__dirname + '/../public/' + req.file.filename),
+      contentType: 'image',
+    }
+
+    const members = [{ id: owner, role: 'coach' }]
+    const classes = []
 
     let team = new Team({
       name,
       owner,
-      inviteLink,
+      teamImage,
+      inviteCode,
       creationDate,
       members,
       classes,
@@ -43,6 +55,7 @@ exports.addTeam = async (req, res) => {
   }
 }
 
+// api/teams/:id
 exports.getTeam = async (req, res) => {
   // update by id
 
@@ -68,7 +81,7 @@ exports.getTeam = async (req, res) => {
 
 exports.updateTeam = async (req, res) => {
   // update by id
-  const teamId = req.query.id
+  const teamId = req.params.id
 
   // info to update
 
@@ -107,7 +120,7 @@ exports.updateTeam = async (req, res) => {
 exports.deleteTeam = async (req, res) => {
   // update by id
 
-  const teamId = req.query.id
+  const teamId = req.params.id
 
   // ** Create new Instance
 
@@ -126,4 +139,45 @@ exports.deleteTeam = async (req, res) => {
   }
 
   return res.status(200).json({ message: 'Successfully Deleted' })
+}
+
+// api/teams/user/:id
+exports.getTeamsByUserId = async (req, res) => {
+  try {
+    const userId = req.params.id
+
+    const teams = await Team.find({ 'members.id': userId })
+
+    if (!teams) {
+      return res.status(500).json({ message: 'Internal Server Error' })
+    } else if (teams.length === 0) {
+      return res.status(404).json({ message: 'No Team Found' })
+    } else {
+      return res.status(200).json({
+        status: 'Success',
+        data: teams,
+      })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal Server Error' + err })
+  }
+}
+
+exports.deleteUserFromTeam = async (req, res) => {
+  try {
+    const teamId = req.params.teamId
+    const userId = req.params.userId
+
+    const teams = await Team.findOneAndDelete({ 'members.id': userId })
+
+    if (!teams) {
+      return res.status(500).json({ message: 'Internal Server Error' })
+    } else if (teams.length === 0) {
+      return res.status(404).json({ message: 'No Team Found' })
+    } else {
+      return res.status(200).json({ status: 'Success', data: teams })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal Server Error' + err })
+  }
 }

@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
 
-// name,owner,inviteLink,creationDate,members,classes
+// name,owner,inviteCode,creationDate,members,classes
 const teamSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
+  teamImage: { data: Buffer, contentType: String },
   owner: { type: String, required: true },
-  inviteLink: { type: String, required: true },
+  inviteCode: { type: String, required: true, unique: true },
   creationDate: { type: Date, default: Date.now },
-  members: { type: Array },
+  members: [{ id: String, role: String }],
   classes: { type: Array },
 })
 
