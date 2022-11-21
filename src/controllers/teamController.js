@@ -1,6 +1,7 @@
 const Team = require('../models/teamModel')
 const fs = require('fs')
 
+// name,owner,inviteCode,pendingList,creationDate,members,classes
 // api/teams
 exports.getAllTeams = async (req, res) => {
   try {
@@ -53,6 +54,30 @@ exports.addTeam = async (req, res) => {
   } catch (err) {
     return res.status(500).json({ message: 'Internal Server Error' + err })
   }
+}
+
+// api/teams/:code
+exports.getTeamByInviteCode = async (req, res) => {
+  // update by id
+
+  const teamInviteCode = req.params.code
+
+  // ** Create new Instance
+  let team
+
+  try {
+    team = await Team.find({ inviteCode: teamInviteCode })
+  } catch (err) {
+    return new Error(err)
+  }
+
+  // ** Send Respons
+
+  if (!team) {
+    return res.status(404).json({ message: 'No Team Found' })
+  }
+
+  return res.status(200).json({ team })
 }
 
 // api/teams/:id
@@ -176,6 +201,98 @@ exports.deleteUserFromTeam = async (req, res) => {
       return res.status(404).json({ message: 'No Team Found' })
     } else {
       return res.status(200).json({ status: 'Success', data: teams })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal Server Error' + err })
+  }
+}
+
+// api/teams/user/:userId/:teamId
+exports.addUserToPendingList = async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const teamId = req.params.teamId
+
+    let team = await Team.findById(teamId)
+
+    if (!team.pendingList.includes(userId)) {
+      team.pendingList.push(userId)
+    }
+    team = await team.save()
+    if (!team) {
+      return res.status(500).json({ message: 'Internal Server Error' })
+    } else if (team.length === 0) {
+      return res.status(404).json({ message: 'No Team Found' })
+    } else {
+      return res.status(200).json({
+        status: 'Success',
+        data: team,
+      })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal Server Error' + err })
+  }
+}
+
+exports.rejectUserDemand = async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const teamId = req.params.teamId
+
+    let team = await Team.findById(teamId)
+
+    if (team.pendingList.includes(userId)) {
+      for (var i = 0; i < team.pendingList.length; i++) {
+        if (team.pendingList[i] === userId) {
+          team.pendingList.splice(i, 1)
+        }
+      }
+    }
+    team = await team.save()
+    if (!team) {
+      return res.status(500).json({ message: 'Internal Server Error' })
+    } else if (team.length === 0) {
+      return res.status(404).json({ message: 'No Team Found' })
+    } else {
+      return res.status(200).json({
+        status: 'Success',
+        data: team,
+      })
+    }
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal Server Error' + err })
+  }
+}
+
+exports.confirmUserDemand = async (req, res) => {
+  try {
+    const userId = req.params.userId
+    const teamId = req.params.teamId
+
+    let team = await Team.findById(teamId)
+
+    if (!team.pendingList.includes(userId)) {
+      return res.status(404).json({ message: 'No Demand Found' })
+    }
+
+    for (var i = 0; i < team.pendingList.length; i++) {
+      if (team.pendingList[i] === userId) {
+        team.pendingList.splice(i, 1)
+      }
+    }
+
+    team.members.push({ id: userId, role: 'athlete' })
+
+    team = await team.save()
+    if (!team) {
+      return res.status(500).json({ message: 'Internal Server Error' })
+    } else if (team.length === 0) {
+      return res.status(404).json({ message: 'No Team Found' })
+    } else {
+      return res.status(200).json({
+        status: 'Success',
+        data: team,
+      })
     }
   } catch (err) {
     return res.status(500).json({ message: 'Internal Server Error' + err })
