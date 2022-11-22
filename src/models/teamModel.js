@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 
-// name,owner,inviteCode,pendingList,creationDate,members,classes
+// name,owner,inviteCode,teamImage,pendingList,creationDate,members,classes
 const teamSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   teamImage: { data: Buffer, contentType: String },
