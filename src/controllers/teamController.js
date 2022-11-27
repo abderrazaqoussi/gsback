@@ -23,19 +23,12 @@ exports.getTeams = catchAsync(async (req, res) => {
 })
 
 exports.addTeam = catchAsync(async (req, res) => {
+  console.log(req.body)
   const { name, owner } = req.body
 
   // console.log(__dirname + '/public/')
   if (!name && !owner) {
     return res.status(422).json({ status: 'Error', message: `Invalid Inputs` })
-  }
-
-  let team = await Team.find({ name })
-  if (team) {
-    return res.status(422).json({
-      status: 'Error',
-      message: `Invalid Inputs : Team With Same Name Found`,
-    })
   }
 
   const teamImage = {
@@ -48,7 +41,7 @@ exports.addTeam = catchAsync(async (req, res) => {
   const inviteCode = generateRandomStr()
   const creationDate = Date.now()
 
-  team = new Team({
+  let team = new Team({
     name,
     owner,
     teamImage,
@@ -87,7 +80,6 @@ exports.getTeamByID = catchAsync(async (req, res) => {
 
 exports.updateTeamName = catchAsync(async (req, res) => {
   // update by id
-
   const teamId = req.params.id
   const { name: newName } = req.body
   // ** Create new Instance
@@ -172,7 +164,25 @@ exports.getTeamsByUserId = catchAsync(async (req, res) => {
   }
 })
 
-// api/teams/user/:userId/:teamId
+// /:teamId/user/:userId/
+exports.getTeamByIdsUser = catchAsync(async (req, res) => {
+  const userId = req.params.userId
+  const teamId = req.params.teamId
+
+  let team = await Team.findById(teamId)
+
+  for (var i = 0; i < team.members.length; i++) {
+    if (team.members[i].id === userId) {
+      return res.status(200).json({
+        status: 'Success',
+        data: team,
+      })
+    }
+  }
+
+  return res.status(404).json({ status: 'Not Found', message: 'No Team Found' })
+})
+
 exports.addUserToPendingList = catchAsync(async (req, res) => {
   const userId = req.params.userId
   const teamId = req.params.teamId

@@ -12,6 +12,7 @@ const {
   confirmUserDemand,
   updateUserRole,
   updateTeamName,
+  getTeamByIdsUser,
 } = require('./../controllers/teamController')
 
 const upload = require('../lib/multerConfig').single('teamImage')
@@ -38,10 +39,12 @@ teamRouter
   .get(getTeamByID)
   .put(updateTeamName)
   .delete(deleteTeamByID)
+
 teamRouter.route('/user/:id').get(getTeamsByUserId)
 
 teamRouter
   .route('/:teamid/user/:userid')
+  .get(getTeamByIdsUser)
   .delete(deleteUserFromTeam)
   .post(addUserToPendingList)
   .put(updateUserRole)

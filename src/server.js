@@ -4,6 +4,7 @@ require('dotenv').config({ path: __dirname + '/../.env' })
 // Import Modules
 const express = require('express')
 const passport = require('passport')
+const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const cookieSession = require('cookie-session')
 const cors = require('cors')
@@ -46,7 +47,11 @@ app.use(
   })
 )
 
-app.use(express.urlencoded({ extended: true }))
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+)
 
 app.use(express.json())
 
