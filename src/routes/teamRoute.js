@@ -3,7 +3,6 @@ const {
   getTeams,
   addTeam,
   deleteTeamByID,
-  getTeamByID,
   getTeamsByUserId,
   deleteUserFromTeam,
   getTeamByCode,
@@ -34,16 +33,12 @@ teamRouter
 
 //
 teamRouter.route('/:code').get(getTeamByCode)
-teamRouter
-  .route('/:id')
-  .get(getTeamByID)
-  .put(updateTeamName)
-  .delete(deleteTeamByID)
+teamRouter.route('/:id').put(updateTeamName).delete(deleteTeamByID)
 
 teamRouter.route('/user/:id').get(getTeamsByUserId)
 
 teamRouter
-  .route('/:teamid/user/:userid')
+  .route('/:teamId/user/:userId')
   .get(getTeamByIdsUser)
   .delete(deleteUserFromTeam)
   .post(addUserToPendingList)

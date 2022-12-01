@@ -23,10 +23,8 @@ exports.getTeams = catchAsync(async (req, res) => {
 })
 
 exports.addTeam = catchAsync(async (req, res) => {
-  console.log(req.body)
   const { name, owner } = req.body
 
-  // console.log(__dirname + '/public/')
   if (!name && !owner) {
     return res.status(422).json({ status: 'Error', message: `Invalid Inputs` })
   }
@@ -213,27 +211,29 @@ exports.deleteUserFromTeam = catchAsync(async (req, res) => {
   const userId = req.params.userId
   const teamId = req.params.teamId
 
-  let teams = await Team.findById(teamId)
+  let team = await Team.findById(teamId)
 
-  if (!teams) {
-    return res.status(500).json({ message: 'Internal Server Error' })
+  if (!team) {
+    return res
+      .status(404)
+      .json({ status: 'Not Found', message: 'No Team Found' })
   }
 
-  for (let i = 0; i < team.members.length; i++) {
-    if (team.members[i].id === userId) {
-      team.members.splice(i, 1)
+  team.members.forEach((member) => {
+    if (member.id !== userId) {
+      team.members = team.members.splice(team.members.indexOf(member), 1)
     }
-  }
+  })
 
   team = await team.save()
 
-  return res.status(200).json({ status: 'Success', data: teams })
+  return res.status(200).json({ status: 'Success', data: team })
 })
 
 // /:teamId/user/:userId/rejected
 exports.rejectUserDemand = catchAsync(async (req, res) => {
-  const userId = req.params.userId
-  const teamId = req.params.teamId
+  const userId = req.params.userid
+  const teamId = req.params.teamid
 
   let team = await Team.findById(teamId)
 
@@ -268,12 +268,16 @@ exports.rejectUserDemand = catchAsync(async (req, res) => {
 
 // /:teamId/user/:userId/confirmed
 exports.confirmUserDemand = catchAsync(async (req, res) => {
-  const userId = req.params.userId
-  const teamId = req.params.teamId
+  const userId = req.params.userid
+  const teamId = req.params.teamid
 
   let team = await Team.findById(teamId)
 
-  if (!team.pendingList.includes(userId)) {
+  if (!team) {
+    return res
+      .status(404)
+      .json({ status: 'Not Found', message: 'No Team Found' })
+  } else if (!team.pendingList.includes(userId)) {
     return res
       .status(404)
       .json({ status: 'Not Found', message: 'No Demand From This User' })
@@ -288,11 +292,7 @@ exports.confirmUserDemand = catchAsync(async (req, res) => {
   team.members.push({ id: userId, role: 'athlete' })
 
   team = await team.save()
-  if (!team) {
-    return res
-      .status(500)
-      .json({ status: 'Error', message: 'Internal Server Error' })
-  } else if (team.length === 0) {
+  if (team.length === 0) {
     return res
       .status(404)
       .json({ status: 'Not Found', message: 'No Team Found' })
@@ -308,23 +308,24 @@ exports.updateUserRole = catchAsync(async (req, res) => {
   const userId = req.params.userId
   const teamId = req.params.teamId
 
-  let teams = await Team.findById(teamId)
+  let team = await Team.findById(teamId)
 
-  if (!teams) {
-    return res.status(500).json({ message: 'Internal Server Error' })
+  if (!team) {
+    return res
+      .status(404)
+      .json({ status: 'Not Found', message: 'No Team Found' })
   }
-
-  for (let i = 0; i < team.members.length; i++) {
-    if (team.members[i].id === userId) {
-      if (team.members.role === 'coach') {
-        team.members.role = 'athlete'
+  team.members.forEach((member) => {
+    if (member.id === userId) {
+      if (member.role === 'coach') {
+        member.role = 'athlete'
       } else {
-        team.members.role = 'coach'
+        member.role = 'coach'
       }
     }
-  }
+  })
 
   team = await team.save()
 
-  return res.status(200).json({ status: 'Success', data: teams })
+  return res.status(200).json({ status: 'Success', data: team })
 })
