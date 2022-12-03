@@ -5,78 +5,85 @@ const JWTStrategy = require('passport-jwt')
 const User = require('./../models/userModel')
 
 // Config Google Strategy
-passport.use(
-  new GoogleStrategy.Strategy(
-    {
-      clientID: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-      callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
-    },
-    async (_accessToken, _refreshToken, profile, done) => {
-      try {
-        let existingUser = await User.findOne({
-          provider: { id: profile.id, name: 'google' },
-        })
-        // if user exists return the user
-        if (existingUser) {
-          // console.log({ existingUser })
-          return done(null, existingUser)
-        }
-        // if user does not exist create a new user
-        console.log('Creating new user...')
-        const newUser = new User({
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          image: profile.photos[0].value,
-          provider: { id: profile.id, name: 'google' },
-        })
-
-        await newUser.save()
-        return done(null, newUser)
-      } catch (error) {
-        console.log({ error })
-        return done(error, false)
-      }
-    }
-  )
-)
-
-// Config Strava Strategy
 // passport.use(
-//   new StravaStrategy(
+//   new GoogleStrategy.Strategy(
 //     {
-//       clientID: process.env.STRAVA_ID,
-//       clientSecret: process.env.STRAVA_SECRET,
-//       callbackURL: `${process.env.SERVER_URL}/auth/strava/callback`,
-//       scope: ['activity:read_all'],
+//       clientID: process.env.GOOGLE_ID,
+//       clientSecret: process.env.GOOGLE_SECRET,
+//       callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
 //     },
-//     async function (accessToken, refreshToken, profile, done) {
-//       // done(null, profile)
+//     async (_accessToken, _refreshToken, profile, done) => {
 //       try {
-//         let existingUser0 = await User.findOne({
-//           provider: { id: profile.id, name: 'strava' },
+//         let existingUser = await User.findOne({
+//           provider: { id: profile.id, name: 'google' },
 //         })
 //         // if user exists return the user
-//         if (existingUser0) {
-//           console.log(true)
+//         if (existingUser) {
+//           // console.log({ existingUser })
 //           return done(null, existingUser)
 //         }
 //         // if user does not exist create a new user
 //         console.log('Creating new user...')
 //         const newUser = new User({
 //           name: profile.displayName,
-//           // email: JSON.stringify(profile),
+//           email: profile.emails[0].value,
 //           image: profile.photos[0].value,
-//           provider: { id: profile.id, name: 'strava' },
+//           provider: { id: profile.id, name: 'google' },
 //         })
+
 //         await newUser.save()
 //         return done(null, newUser)
 //       } catch (error) {
+//         console.log({ error })
 //         return done(error, false)
 //       }
 //     }
 //   )
 // )
+
+// Config Strava Strategy
+passport.use(
+  new StravaStrategy(
+    {
+      clientID: process.env.STRAVA_ID,
+      clientSecret: process.env.STRAVA_SECRET,
+      callbackURL: `${process.env.SERVER_URL}/auth/strava/callback`,
+    },
+    async function (accessToken, refreshToken, profile, done) {
+      try {
+        console.log({ id: profile.id })
+        User.findOne(
+          { provider: { id: `${profile.id}`, name: 'strava' } },
+          function (err, results) {
+            if (err) {
+              return console.log('error: ' + err)
+            }
+            console.log('results : ' + results)
+          }
+        )
+
+        // if user exists return the user
+        // console.log({ existingUser })
+        // if (existingUser) {
+        //   console.log({ is: 'existingUser' })
+        //   return done(null, existingUser)
+        // }
+        // // if user does not exist create a new user
+        // console.log('Creating new user...')
+        // const newUser = new User({
+        //   name: profile.displayName,
+        //   email: JSON.stringify(profile),
+        //   image: profile.photos[0].value,
+        //   provider: { id: profile.id, name: 'strava' },
+        // })
+        // await newUser.save()
+        // return done(null, newUser)
+      } catch (error) {
+        return done(error, false)
+      }
+    }
+  )
+)
 
 // Config JWT Strategy
 passport.use(

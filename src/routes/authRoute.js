@@ -18,10 +18,31 @@ router.get(
   })
 )
 
+router.get(
+  '/strava',
+  passport.authenticate('strava', {
+    scope: ['activity:read_all'],
+  })
+)
+
 // This is the callback\redirect url after the OAuth login at Google.
 router.get(
   '/google/callback',
   passport.authenticate('google', {
+    session: false,
+    failureRedirect: `${process.env.CLIENT_URL}/signin`,
+  }),
+  (req, res) => {
+    const token = generateJwtToken(req.user)
+    res.cookie('jwt', token)
+    // res.setHeader('Set-Cookie', `jwt=${token}`)
+    res.redirect(`${process.env.CLIENT_URL}/`)
+  }
+)
+
+router.get(
+  '/strava/callback',
+  passport.authenticate('strava', {
     session: false,
     failureRedirect: `${process.env.CLIENT_URL}/signin`,
   }),
