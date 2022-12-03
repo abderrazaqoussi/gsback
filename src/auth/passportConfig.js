@@ -5,41 +5,41 @@ const JWTStrategy = require('passport-jwt')
 const User = require('./../models/userModel')
 
 // Config Google Strategy
-// passport.use(
-//   new GoogleStrategy.Strategy(
-//     {
-//       clientID: process.env.GOOGLE_ID,
-//       clientSecret: process.env.GOOGLE_SECRET,
-//       callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
-//     },
-//     async (_accessToken, _refreshToken, profile, done) => {
-//       try {
-//         let existingUser = await User.findOne({
-//           provider: { id: profile.id, name: 'google' },
-//         })
-//         // if user exists return the user
-//         if (existingUser) {
-//           // console.log({ existingUser })
-//           return done(null, existingUser)
-//         }
-//         // if user does not exist create a new user
-//         console.log('Creating new user...')
-//         const newUser = new User({
-//           name: profile.displayName,
-//           email: profile.emails[0].value,
-//           image: profile.photos[0].value,
-//           provider: { id: profile.id, name: 'google' },
-//         })
+passport.use(
+  new GoogleStrategy.Strategy(
+    {
+      clientID: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+      callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
+    },
+    async (_accessToken, _refreshToken, profile, done) => {
+      try {
+        let existingUser = await User.findOne({
+          provider: { id: profile.id, name: 'google' },
+        }).exec()
+        // if user exists return the user
+        if (existingUser) {
+          // console.log({ existingUser })
+          return done(null, existingUser)
+        }
+        // if user does not exist create a new user
+        console.log('Creating new user...')
+        const newUser = new User({
+          name: profile.displayName,
+          email: profile.emails[0].value,
+          image: profile.photos[0].value,
+          provider: { id: profile.id, name: 'google' },
+        })
 
-//         await newUser.save()
-//         return done(null, newUser)
-//       } catch (error) {
-//         console.log({ error })
-//         return done(error, false)
-//       }
-//     }
-//   )
-// )
+        await newUser.save()
+        return done(null, newUser)
+      } catch (error) {
+        console.log({ error })
+        return done(error, false)
+      }
+    }
+  )
+)
 
 // Config Strava Strategy
 passport.use(
@@ -51,33 +51,27 @@ passport.use(
     },
     async function (accessToken, refreshToken, profile, done) {
       try {
-        console.log({ id: profile.id })
-        User.findOne(
-          { provider: { id: `${profile.id}`, name: 'strava' } },
-          function (err, results) {
-            if (err) {
-              return console.log('error: ' + err)
-            }
-            console.log('results : ' + results)
-          }
-        )
+        let existingUser = await User.findOne({
+          provider: { id: `${profile.id}`, name: 'strava' },
+        }).exec()
 
         // if user exists return the user
-        // console.log({ existingUser })
-        // if (existingUser) {
-        //   console.log({ is: 'existingUser' })
-        //   return done(null, existingUser)
-        // }
-        // // if user does not exist create a new user
-        // console.log('Creating new user...')
-        // const newUser = new User({
-        //   name: profile.displayName,
-        //   email: JSON.stringify(profile),
-        //   image: profile.photos[0].value,
-        //   provider: { id: profile.id, name: 'strava' },
-        // })
-        // await newUser.save()
-        // return done(null, newUser)
+        if (existingUser) {
+          return done(null, existingUser)
+        }
+        // if user does not exist create a new user
+        const newUser = new User({
+          name: profile.displayName,
+          email: JSON.stringify(profile),
+          image: profile.photos[0].value,
+          provider: {
+            id: profile.id,
+            name: 'strava',
+            token: `${profile.token}`,
+          },
+        })
+        await newUser.save()
+        return done(null, newUser)
       } catch (error) {
         return done(error, false)
       }
