@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   provider: {
     id: { type: String, required: true },
     name: { type: String, required: true },
+    token: { type: String },
   },
 })
 

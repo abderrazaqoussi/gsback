@@ -62,7 +62,6 @@ passport.use(
         // if user does not exist create a new user
         const newUser = new User({
           name: profile.displayName,
-          email: JSON.stringify(profile),
           image: profile.photos[0].value,
           provider: {
             id: profile.id,

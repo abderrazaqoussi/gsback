@@ -21,7 +21,8 @@ router.get(
 router.get(
   '/strava',
   passport.authenticate('strava', {
-    scope: ['activity:read_all'],
+    scope: ['read_all,profile:read_all,activity:read,activity:read_all'],
+    approval_prompt: 'force',
   })
 )
 
