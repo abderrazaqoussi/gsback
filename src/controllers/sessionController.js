@@ -1,11 +1,14 @@
-const User = require('../models/userModel')
 const catchAsync = require('../utils/catchAsync')
-const fetch = (...args) =>
-  import('node-fetch').then(({ default: fetch }) => fetch(...args))
-// name,owner,inviteCode,pendingList,creationDate,members,classes
+const Session = require('../models/sessionModel')
+const User = require('../models/userModel')
+const fetch = function (...args) {
+  return import('node-fetch').then(({ default: fetch }) => fetch(...args))
+}
+
+// title,teamId,createdBy,sport,date,athletes,description,tasks
 
 // /recorded/:id
-exports.getRecordedClass = catchAsync(async (req, res) => {
+exports.getRecordedSessions = catchAsync(async (req, res) => {
   const userId = req.params.id
 
   // ** Create new Instance
@@ -30,52 +33,61 @@ exports.getRecordedClass = catchAsync(async (req, res) => {
 })
 
 // /planified/
-exports.getClasses = catchAsync(async (req, res) => {
-  const teams = await Team.find({})
+exports.getSessions = catchAsync(async (req, res) => {
+  const sessions = await Session.find({})
 
-  if (!teams) {
+  if (!sessions) {
     return res
       .status(500)
       .json({ status: 'Error', message: 'Internal Server Error' })
-  } else if (teams.length === 0) {
+  } else if (sessions.length === 0) {
     return res
       .status(404)
       .json({ status: 'Not Found', message: 'No Team Found' })
   } else {
-    return res.status(200).json({ status: 'Success', data: teams })
+    return res.status(200).json({ status: 'Success', data: sessions })
   }
 })
 
-exports.addClass = catchAsync(async (req, res) => {
-  const { name, owner } = req.body
+exports.addSession = catchAsync(async (req, res) => {
+  const {
+    title,
+    teamId,
+    createdBy,
+    sport,
+    date,
+    athletes,
+    description,
+    tasks,
+  } = req.body
 
-  if (!name && !owner) {
+  if (
+    !title &&
+    !teamId &&
+    !createdBy &&
+    !sport &&
+    !date &&
+    !athletes &&
+    !tasks
+  ) {
     return res.status(422).json({ status: 'Error', message: `Invalid Inputs` })
   }
 
-  const teamImage = {
-    data: fs.readFileSync(__dirname + '/../public/' + req.file.filename),
-    contentType: 'image',
-  }
-
-  const members = [{ id: owner, role: 'owner' }]
-  const classes = []
-  const inviteCode = generateRandomStr()
-  const creationDate = Date.now()
-
-  let team = new Team({
-    name,
-    owner,
-    teamImage,
-    inviteCode,
-    creationDate,
-    members,
-    classes,
+  let session = new Session({
+    title,
+    teamId,
+    createdBy,
+    sport,
+    date,
+    athletes,
+    description,
+    tasks,
   })
-  team = await team.save()
+
+  session = await session.save()
   return res.status(201).json({
     status: 'Success',
-    message: `Team Added Successfully`,
-    data: team,
+    message: `Session Added Successfully`,
+    data: session,
   })
 })

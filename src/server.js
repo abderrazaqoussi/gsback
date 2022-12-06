@@ -63,7 +63,7 @@ app.use(passport.initialize())
 
 app.use('/auth', require('./routes/authRoute'))
 app.use('/api/v1/teams', require('./routes/teamRoute'))
-app.use('/api/v1/classes', require('./routes/classRoute'))
+app.use('/api/v1/sessions', require('./routes/sessionRoute'))
 app.use('/api/v1/users', require('./routes/userRoute'))
 
 app.get('/', (req, res) => {
