@@ -23,6 +23,7 @@ exports.getTeams = catchAsync(async (req, res) => {
 })
 
 exports.addTeam = catchAsync(async (req, res) => {
+  console.table(req.body)
   const { name, owner } = req.body
 
   if (!name && !owner) {

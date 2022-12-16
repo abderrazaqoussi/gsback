@@ -1,5 +1,5 @@
 const catchAsync = require('../utils/catchAsync')
-const Session = require('../models/sessionModel')
+const Workout = require('../models/workoutModel')
 const User = require('../models/userModel')
 const fetch = function (...args) {
   return import('node-fetch').then(({ default: fetch }) => fetch(...args))
@@ -8,7 +8,7 @@ const fetch = function (...args) {
 // title,teamId,createdBy,sport,date,athletes,description,tasks
 
 // /recorded/:id
-exports.getRecordedSessions = catchAsync(async (req, res) => {
+exports.getRecordedWorkouts = catchAsync(async (req, res) => {
   const userId = req.params.id
 
   // ** Create new Instance
@@ -32,24 +32,25 @@ exports.getRecordedSessions = catchAsync(async (req, res) => {
   }
 })
 
-// /planified/
-exports.getSessions = catchAsync(async (req, res) => {
-  const sessions = await Session.find({})
+// /planned/
+exports.getPlannedWorkouts = catchAsync(async (req, res) => {
+  const workouts = await Workout.find({})
 
-  if (!sessions) {
+  if (!workouts) {
     return res
       .status(500)
       .json({ status: 'Error', message: 'Internal Server Error' })
-  } else if (sessions.length === 0) {
+  } else if (workouts.length === 0) {
     return res
       .status(404)
       .json({ status: 'Not Found', message: 'No Team Found' })
   } else {
-    return res.status(200).json({ status: 'Success', data: sessions })
+    return res.status(200).json({ status: 'Success', data: workouts })
   }
 })
 
-exports.addSession = catchAsync(async (req, res) => {
+exports.addWorkout = catchAsync(async (req, res) => {
+  console.table(req.body)
   const {
     title,
     teamId,
@@ -73,7 +74,7 @@ exports.addSession = catchAsync(async (req, res) => {
     return res.status(422).json({ status: 'Error', message: `Invalid Inputs` })
   }
 
-  let session = new Session({
+  let workout = new Workout({
     title,
     teamId,
     createdBy,
@@ -84,10 +85,45 @@ exports.addSession = catchAsync(async (req, res) => {
     tasks,
   })
 
-  session = await session.save()
+  workout = await workout.save()
   return res.status(201).json({
     status: 'Success',
     message: `Session Added Successfully`,
-    data: session,
+    data: workout,
   })
+})
+
+exports.teamWorkoutsByUserId = catchAsync(async (req, res) => {
+  console.log(req.params.userId, req.params.teamId)
+  const userId = req.params.userId
+  const teamId = req.params.teamId
+
+  let workouts = await Workout.find({ teamId: teamId })
+  console.log({ workouts })
+  if (!workouts || workouts.length === 0) {
+    return res
+      .status(404)
+      .json({ status: 'Not Found', message: 'No Workouts For This Team' })
+  }
+  let data = []
+  workouts.map((workout) => {
+    workout.athletes.map((athlete) => {
+      if (athlete.id === userId) {
+        data.push(workout)
+      }
+    })
+  })
+
+  //
+  if (data.length === 0) {
+    return res.status(404).json({
+      status: 'Not Found',
+      message: 'No Workouts For This User In This Team',
+    })
+  } else {
+    return res.status(200).json({
+      status: 'Success',
+      data: data,
+    })
+  }
 })

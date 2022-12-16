@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 // title,teamId,createdBy,sport,date,athletes,description,tasks
-const sessionSchema = new mongoose.Schema({
+const workoutSchema = new mongoose.Schema({
   title: { type: String },
   teamId: { type: String, required: true },
   createdBy: { type: String, required: true },
@@ -12,5 +12,5 @@ const sessionSchema = new mongoose.Schema({
   tasks: { type: Array },
 })
 
-const Session = mongoose.model('Session', sessionSchema)
-module.exports = Session
+const Workout = mongoose.model('Workout', workoutSchema)
+module.exports = Workout
