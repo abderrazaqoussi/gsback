@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "name": "music-album",
+  "name": "Go Sports Back-End",
+  "buildCommand": "next build",
   "builds": [{ "src": "src/server.js", "use": "@vercel/node" }],
   "routes": [{ "src": "/(.*)", "dest": "/src/server.js" }]
 }

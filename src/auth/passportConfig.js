@@ -28,6 +28,7 @@ passport.use(
           name: profile.displayName,
           email: profile.emails[0].value,
           image: profile.photos[0].value,
+          joinedAt: Date.now(),
           provider: { id: profile.id, name: 'google' },
         })
 
@@ -63,6 +64,7 @@ passport.use(
         const newUser = new User({
           name: profile.displayName,
           image: profile.photos[0].value,
+          joinedAt: Date.now(),
           provider: {
             id: profile.id,
             name: 'strava',

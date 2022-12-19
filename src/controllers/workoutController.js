@@ -1,6 +1,7 @@
 const catchAsync = require('../utils/catchAsync')
 const Workout = require('../models/workoutModel')
 const User = require('../models/userModel')
+const Team = require('../models/teamModel')
 const fetch = function (...args) {
   return import('node-fetch').then(({ default: fetch }) => fetch(...args))
 }
@@ -29,6 +30,42 @@ exports.getRecordedWorkouts = catchAsync(async (req, res) => {
     return res
       .status(404)
       .json({ status: 'Not Found', message: 'No Recorded Class' })
+  }
+})
+
+exports.teamRecordedWorkouts = catchAsync(async (req, res) => {
+  const id = req.params.id
+
+  // ** Create new Instance
+  let team = await Team.findById(id)
+  if (!team) {
+    return res.status(500).json({
+      status: 'Not Found',
+      message: 'No Team Match This Id',
+    })
+  } else {
+    let data = []
+    team.members.map(async (member, index) => {
+      let user = await User.findById(member.id)
+
+      if (user.provider.name === 'strava') {
+        const response = await fetch(
+          `https://www.strava.com/api/v3/athlete/activities?access_token=${user.provider.token}`
+        )
+
+        const parsedData = await response.json()
+        data.push({ user, activities: parsedData })
+      }
+      if (index === team.members.length - 1) {
+        if (data.length) {
+          res.status(200).json({ status: 'Success', length: data.length, data })
+        } else {
+          return res
+            .status(404)
+            .json({ status: 'Not Found', message: 'No Recorded Class' })
+        }
+      }
+    })
   }
 })
 

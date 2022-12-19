@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String },
   image: { type: String },
   teams: { type: Array },
+  joinedAt: { type: Date, default: Date.now },
   provider: {
     id: { type: String, required: true },
     name: { type: String, required: true },
