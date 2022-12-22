@@ -21,7 +21,7 @@ exports.getRecordedWorkouts = catchAsync(async (req, res) => {
     })
   } else if (user.provider.name === 'strava') {
     const response = await fetch(
-      `https://www.strava.com/api/v3/athlete/activities?access_token=${user.provider.token}`
+      `https://www.strava.com/api/v3/athlete/activities?access_token=${user.provider.accessToken}`
     )
 
     const data = await response.json()
@@ -38,6 +38,7 @@ exports.teamRecordedWorkouts = catchAsync(async (req, res) => {
 
   // ** Create new Instance
   let team = await Team.findById(id)
+  // console.log('im here', team)
   if (!team) {
     return res.status(500).json({
       status: 'Not Found',
@@ -50,13 +51,14 @@ exports.teamRecordedWorkouts = catchAsync(async (req, res) => {
 
       if (user.provider.name === 'strava') {
         const response = await fetch(
-          `https://www.strava.com/api/v3/athlete/activities?access_token=${user.provider.token}`
+          `https://www.strava.com/api/v3/athlete/activities?access_token=${user.provider.accessToken}`
         )
 
         const parsedData = await response.json()
         data.push({ user, activities: parsedData })
       }
       if (index === team.members.length - 1) {
+        console.log(data, 'team recorded workouts')
         if (data.length) {
           res.status(200).json({ status: 'Success', length: data.length, data })
         } else {
@@ -87,7 +89,6 @@ exports.getPlannedWorkouts = catchAsync(async (req, res) => {
 })
 
 exports.addWorkout = catchAsync(async (req, res) => {
-  console.table(req.body)
   const {
     title,
     teamId,
@@ -131,12 +132,10 @@ exports.addWorkout = catchAsync(async (req, res) => {
 })
 
 exports.teamWorkoutsByUserId = catchAsync(async (req, res) => {
-  console.log(req.params.userId, req.params.teamId)
   const userId = req.params.userId
   const teamId = req.params.teamId
 
   let workouts = await Workout.find({ teamId: teamId })
-  console.log({ workouts })
   if (!workouts || workouts.length === 0) {
     return res
       .status(404)

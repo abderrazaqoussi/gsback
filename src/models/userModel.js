@@ -5,12 +5,14 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String },
   image: { type: String },
-  teams: { type: Array },
+  teams: Array,
   joinedAt: { type: Date, default: Date.now },
   provider: {
     id: { type: String, required: true },
     name: { type: String, required: true },
-    token: { type: String },
+    accessToken: String,
+    refreshToken: String,
+    expiresIn: String,
   },
 })
 

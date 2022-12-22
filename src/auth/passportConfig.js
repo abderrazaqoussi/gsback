@@ -50,16 +50,24 @@ passport.use(
       clientSecret: process.env.STRAVA_SECRET,
       callbackURL: `${process.env.SERVER_URL}/auth/strava/callback`,
     },
-    async function (accessToken, refreshToken, profile, done) {
+    async function (accessToken, refreshToken, expires, profile, done) {
       try {
         let existingUser = await User.findOne({
           provider: { id: `${profile.id}`, name: 'strava' },
         }).exec()
 
+        //expires_at, expires_in
+        console.log({ accessToken, refreshToken })
         // if user exists return the user
         if (existingUser) {
-          return done(null, existingUser)
+          if (existingUser.provider.expiresIn <= 0) {
+            // generate new access token
+            return done(null, existingUser)
+          } else {
+            return done(null, existingUser)
+          }
         }
+
         // if user does not exist create a new user
         const newUser = new User({
           name: profile.displayName,
@@ -68,7 +76,9 @@ passport.use(
           provider: {
             id: profile.id,
             name: 'strava',
-            token: `${profile.token}`,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresIn: expires.expires_in,
           },
         })
         await newUser.save()
