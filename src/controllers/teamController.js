@@ -5,7 +5,6 @@ const fs = require('fs')
 
 // name,owner,inviteCode,pendingList,creationDate,members,classes
 
-// api/teams
 exports.getTeams = catchAsync(async (req, res) => {
   const teams = await Team.find({})
 
